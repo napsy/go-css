@@ -13,7 +13,8 @@ import (
 type tokenType int
 
 const (
-	tokenBlockStart tokenType = iota
+	tokenFirstToken tokenType = iota - 1
+	tokenBlockStart
 	tokenBlockEnd
 	tokenRuleName
 	tokenValue
@@ -122,7 +123,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		styles = make(map[string]string)
 
 		// Previous token for the state machine.
-		prevToken = tokenType(-1)
+		prevToken = tokenType(tokenFirstToken)
 	)
 
 	for e := l.Front(); e != nil; e = l.Front() {
@@ -132,22 +133,31 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		switch token.typ() {
 		case tokenValue:
 			switch prevToken {
-			case -1, tokenBlockEnd:
+			case tokenFirstToken, tokenBlockEnd:
 				rule = token.value
 			case tokenBlockStart, tokenStatementEnd:
 				style = token.value
 			case tokenStyleSeparator:
 				value = token.value
 			default:
-				return css, fmt.Errorf("invalid syntax: line %d\n", token.pos.Line)
+				return css, fmt.Errorf("line %d: invalid syntax", token.pos.Line)
 			}
 		case tokenBlockStart:
 			if prevToken != tokenValue {
-				return css, fmt.Errorf("block without rule name: line %d\n", token.pos.Line)
+				return css, fmt.Errorf("line %d: block is missing rule name", token.pos.Line)
 			}
 		case tokenStatementEnd:
 			styles[style] = value
 		case tokenBlockEnd:
+			oldRule, ok := css[Rule(rule)]
+			if ok {
+				// merge rules
+				for style, value := range oldRule {
+					if _, ok := styles[style]; !ok {
+						styles[style] = value
+					}
+				}
+			}
 			css[Rule(rule)] = styles
 		}
 		prevToken = token.typ()

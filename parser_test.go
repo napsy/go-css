@@ -2,7 +2,6 @@ package css
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -20,7 +19,7 @@ func TestParseSimple(t *testing.T) {
 }`
 
 	t.Run("GoodCSS", func(t *testing.T) {
-		css, err := parse(buildList(strings.NewReader(ex1)))
+		css, err := Unmarshal([]byte(ex1))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -43,13 +42,13 @@ func TestParseSimple(t *testing.T) {
 	})
 
 	t.Run("MissingRule", func(t *testing.T) {
-		if _, err := parse(buildList(strings.NewReader(ex2))); err == nil {
+		if _, err := Unmarshal([]byte(ex2)); err == nil {
 			t.Fatal("should error out")
 		}
 	})
 
 	t.Run("StatementMissingSemicolon", func(t *testing.T) {
-		if _, err := parse(buildList(strings.NewReader(ex3))); err == nil {
+		if _, err := Unmarshal([]byte(ex3)); err == nil {
 			t.Fatal("should error out")
 		}
 	})
@@ -65,7 +64,7 @@ func TestParseHarder(t *testing.T) {
 rule2 {
 	style3: value3;
 }`
-		css, err := parse(buildList(strings.NewReader(ex1)))
+		css, err := Unmarshal([]byte(ex1))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -78,6 +77,28 @@ rule2 {
 		}
 		if _, ok := css["rule2"]; !ok {
 			t.Fatal("missing rule 'rule2'")
+		}
+	})
+	t.Run("MergedRules", func(t *testing.T) {
+		ex1 := `rule1 {
+		style1: value1;
+		style2: value2;
+}
+rule1 {
+	style1: value3;
+}`
+		css, err := Unmarshal([]byte(ex1))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(css) != 1 {
+			t.Fatalf("there should be only one rule, got %d", len(css))
+		}
+		if len(css["rule1"]) != 2 {
+			t.Fatalf("there should be two styles for rule 'rule1', got %d", len(css["rule1"]))
+		}
+		if css["rule1"]["style1"] != "value3" {
+			t.Fatalf("value of 'style1' should be 'value3' but got '%v'", css["rule1"]["style1"])
 		}
 	})
 }
