@@ -36,7 +36,7 @@ func (rule Rule) Type() string {
 	if strings.HasPrefix(string(rule), ".") {
 		return "class"
 	}
-	if strings.HasPrefix(string(rule), ".") {
+	if strings.HasPrefix(string(rule), "#") {
 		return "id"
 	}
 	return "tag"
