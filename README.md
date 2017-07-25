@@ -18,7 +18,7 @@ ex1 := `rule {
 	style2: value2;
 }`
 
-css, err := css.Unmarshal(strings.NewReader(ex1))
+css, err := css.Unmarshal([]byte(ex1))
 if err != nil {
 	panic(err)
 }
