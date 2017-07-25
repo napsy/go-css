@@ -1,6 +1,7 @@
 package css
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -79,4 +80,22 @@ rule2 {
 			t.Fatal("missing rule 'rule2'")
 		}
 	})
+}
+
+func BenchmarkParser(b *testing.B) {
+
+	ex1 := ""
+	for i := 0; i < 100; i++ {
+		ex1 += fmt.Sprintf(`block%d {
+	style%d: value%d;
+}`, i, i, i)
+	}
+	styleSheet := []byte(ex1)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := Unmarshal(styleSheet)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
 }
