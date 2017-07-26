@@ -22,6 +22,7 @@ const (
 	tokenStatementEnd
 )
 
+// Rule is a string type that represents a CSS rule.
 type Rule string
 
 type tokenEntry struct {
@@ -33,6 +34,7 @@ type tokenizer struct {
 	s *scanner.Scanner
 }
 
+// Type returns the rule type, which can be a class, id or a tag.
 func (rule Rule) Type() string {
 	if strings.HasPrefix(string(rule), ".") {
 		return "class"
@@ -166,6 +168,8 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 	return css, nil
 }
 
+// Unmarshal will take a byte slice, containing sylesheet rules and return
+// a map of a rules map.
 func Unmarshal(b []byte) (map[Rule]map[string]string, error) {
 	return parse(buildList(bytes.NewReader(b)))
 }
