@@ -159,6 +159,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 				}
 			}
 			css[Rule(rule)] = styles
+			styles = map[string]string{}
 		}
 		prevToken = token.typ()
 	}
