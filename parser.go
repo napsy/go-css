@@ -126,6 +126,8 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		style string
 		value string
 
+		isBlock bool
+
 		// Parsed styles.
 		css    = make(map[Rule]map[string]string)
 		styles = make(map[string]string)
@@ -143,7 +145,6 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			case tokenFirstToken, tokenBlockEnd:
 				rule = token.value
 			case tokenBlockStart, tokenStatementEnd:
-
 				style = token.value
 			case tokenStyleSeparator:
 				value = token.value
@@ -152,11 +153,18 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			}
 		case tokenBlockStart:
 			if prevToken != tokenValue {
-				return css, fmt.Errorf("line %d: block is missing rule name", token.pos.Line)
+				return css, fmt.Errorf("line %d: block is missing rule identifier", token.pos.Line)
 			}
+			isBlock = true
 		case tokenStatementEnd:
+			if prevToken != tokenValue || style == "" || value == "" {
+				return css, fmt.Errorf("line %d: expected style before semicolon", token.pos.Line)
+			}
 			styles[style] = value
 		case tokenBlockEnd:
+			if !isBlock {
+				return css, fmt.Errorf("line %d: rule block ends without a beginning", token.pos.Line)
+			}
 			oldRule, ok := css[Rule(rule)]
 			if ok {
 				// merge rules
@@ -168,6 +176,8 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			}
 			css[Rule(rule)] = styles
 			styles = map[string]string{}
+			style, value = "", ""
+			isBlock = false
 		}
 		prevToken = token.typ()
 	}

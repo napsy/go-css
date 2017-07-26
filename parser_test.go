@@ -17,6 +17,15 @@ func TestParseSimple(t *testing.T) {
 		style1: value1
 		style2: value2;
 }`
+	ex4 := `rule {
+		style1: value1;
+		style2:;
+}`
+	ex5 := `}
+rule {
+		style1: value1;
+		style2:;
+}`
 
 	t.Run("GoodCSS", func(t *testing.T) {
 		css, err := Unmarshal([]byte(ex1))
@@ -49,6 +58,16 @@ func TestParseSimple(t *testing.T) {
 
 	t.Run("StatementMissingSemicolon", func(t *testing.T) {
 		if _, err := Unmarshal([]byte(ex3)); err == nil {
+			t.Fatal("should error out")
+		}
+	})
+	t.Run("StyleWithoutValue", func(t *testing.T) {
+		if _, err := Unmarshal([]byte(ex4)); err == nil {
+			t.Fatal("should error out")
+		}
+	})
+	t.Run("BlockEndsWithoutBeginning", func(t *testing.T) {
+		if _, err := Unmarshal([]byte(ex5)); err == nil {
 			t.Fatal("should error out")
 		}
 	})
