@@ -93,6 +93,12 @@ func newTokenType(typ string) tokenType {
 func newTokenizer(r io.Reader) *tokenizer {
 	s := &scanner.Scanner{}
 	s.Init(r)
+	s.IsIdentRune = func(ch rune, i int) bool {
+		if ch == -1 || ch == '\n' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
+			return false
+		}
+		return true
+	}
 	return &tokenizer{
 		s: s,
 	}
@@ -131,13 +137,13 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 	for e := l.Front(); e != nil; e = l.Front() {
 		token := e.Value.(tokenEntry)
 		l.Remove(e)
-
 		switch token.typ() {
 		case tokenValue:
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
 				rule = token.value
 			case tokenBlockStart, tokenStatementEnd:
+
 				style = token.value
 			case tokenStyleSeparator:
 				value = token.value

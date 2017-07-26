@@ -101,6 +101,17 @@ rule1 {
 			t.Fatalf("value of 'style1' should be 'value3' but got '%v'", css["rule1"]["style1"])
 		}
 	})
+	t.Run("RealWorldCSS", func(t *testing.T) {
+		ex1 := `body {
+    background-image: url("gradient_bg.png");
+    background-repeat: repeat-x;
+}`
+		_, err := Unmarshal([]byte(ex1))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+	})
 }
 
 func BenchmarkParser(b *testing.B) {
