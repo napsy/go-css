@@ -25,14 +25,14 @@ ex1 := `rule {
 	style2: value2;
 }`
 
-css, err := css.Unmarshal([]byte(ex1))
+stylesheet, err := css.Unmarshal([]byte(ex1))
 if err != nil {
 	panic(err)
 }
 
 fmt.Printf("Defined rules:\n")
 
-for k, _ := range css {
+for k, _ := range stylesheet {
 	fmt.Printf("- rule %q\n", k)
 }
 ```
