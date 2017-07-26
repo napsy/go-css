@@ -1,6 +1,8 @@
 # go-css-parser
 
 [![Build Status](https://travis-ci.org/napsy/go-css-parser.svg?branch=master)](https://travis-ci.org/napsy/go-css-parser)
+[![Coverage Status](http://codecov.io/github/napsy/go-css-parser/coverage.svg?branch=master)](http://codecov.io/github/vendor/package?branch=master)
+
 
 This parser understands simple CSS and comes with a basic CSS syntax checker.
 
