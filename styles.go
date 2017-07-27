@@ -7,31 +7,34 @@ type UnitValue float64
 type UnitType int
 
 const (
-	UnitPixels UnitType = iota
+	UnitNone UnitType = iota
+	UnitPixels
 	UnitEm
 	UnitRem
 	UnitPercent
 	UnitPt
 	UnitAuto
-	UnitNone
 )
 
 type Style struct {
 	Value interface{}
+	unit  UnitType
 }
 
 func (style Style) Unit() UnitType {
-	return UnitNone
+	return style.unit
 }
 
 func (style Style) String() string {
 	return fmt.Sprintf("%v", style.Value)
 }
 
-type styleHandler func(value string) (Style, error)
+// StyleHandler is a function that checks the style value for errors
+// and returns a Style
+type StyleHandler func(value string) (Style, error)
 
-// Common CSS styles
-var stylesTable = map[string]styleHandler{
+// Common CSS styles. You can overwrite the handlers with your own.
+var StylesTable = map[string]StyleHandler{
 	"background":                    background,
 	"background-attachment":         backgroundAttachment,
 	"background-color":              backgroundColor,
