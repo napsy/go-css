@@ -10,14 +10,14 @@ This parser understands simple CSS and comes with a basic CSS syntax checker.
 
 
 ```
-go get github.com/napsy/go-css-parser
+go get github.com/napsy/go-css
 ```
 
 Example usage:
 
 ```go
 
-import css "github.com/napsy/go-css-parser"
+import "github.com/napsy/go-css"
 
 ex1 := `rule {
 	style1: value1;
