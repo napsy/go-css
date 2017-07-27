@@ -189,3 +189,13 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 func Unmarshal(b []byte) (map[Rule]map[string]string, error) {
 	return parse(buildList(bytes.NewReader(b)))
 }
+
+// CSSStyle returns an error-checked parsed style, or an error if the
+// style is unknown.
+func CSSStyle(name, value string) (Style, error) {
+	styleFn, ok := stylesTable[name]
+	if !ok {
+		return Style{}, errors.New("unknown style")
+	}
+	return styleFn(value)
+}
