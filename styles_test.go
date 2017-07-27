@@ -3,11 +3,11 @@ package css
 import "testing"
 
 func TestStyles(t *testing.T) {
-	_, err := CSSStyle("background-color", "bla")
+	_, err := CSSStyle("background-color", map[string]string{"background-color": "bla"})
 	if err == nil {
 		t.Fatal("should report invalid color")
 	}
-	_, err = CSSStyle("background-color", "#aabbccdd")
+	_, err = CSSStyle("background-color", map[string]string{"background-color": "#aabbccdd"})
 	if err != nil {
 		t.Fatalf("should be valid color, but got %v", err)
 	}

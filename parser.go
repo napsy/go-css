@@ -192,7 +192,8 @@ func Unmarshal(b []byte) (map[Rule]map[string]string, error) {
 
 // CSSStyle returns an error-checked parsed style, or an error if the
 // style is unknown. Most of the styles are not supported yet.
-func CSSStyle(name, value string) (Style, error) {
+func CSSStyle(name string, styles map[string]string) (Style, error) {
+	value := styles[name]
 	styleFn, ok := StylesTable[name]
 	if !ok {
 		return Style{}, errors.New("unknown style")
