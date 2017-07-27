@@ -38,7 +38,7 @@ for k, _ := range stylesheet {
 
 You can get a CSS verifiable property by calling ``CSSStyle``:
 
-```
+```go
 style, err := css.CSSStyle("background-color", styleSheet["body"]["background-color"])
 if err != nil {
 	fmt.Printf("Error checking body background color: %v\n", err)
