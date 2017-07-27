@@ -1,4 +1,4 @@
-# go-css-parser
+# go-css
 
 [![Build Status](https://travis-ci.org/napsy/go-css-parser.svg?branch=master)](https://travis-ci.org/napsy/go-css-parser)
 [![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/vendor/package/blob/master/LICENSE.md)
