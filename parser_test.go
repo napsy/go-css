@@ -98,6 +98,17 @@ rule2 {
 			t.Fatal("missing rule 'rule2'")
 		}
 	})
+	t.Run("PropertyWithSpace", func(t *testing.T) {
+		// XXX fix this
+		t.SkipNow()
+		ex1 := `body {
+		font-family: 'Zil', serif;
+}`
+		_, err := Unmarshal([]byte(ex1))
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
 	t.Run("MergedRules", func(t *testing.T) {
 		ex1 := `rule1 {
 		style1: value1;

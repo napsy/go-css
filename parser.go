@@ -141,6 +141,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		l.Remove(e)
 		switch token.typ() {
 		case tokenValue:
+			fmt.Printf("value: %q, prevToken: %v\n", token.value, prevToken)
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
 				rule = token.value
@@ -149,6 +150,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			case tokenStyleSeparator:
 				value = token.value
 			default:
+
 				return css, fmt.Errorf("line %d: invalid syntax", token.pos.Line)
 			}
 		case tokenBlockStart:
