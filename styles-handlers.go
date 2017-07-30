@@ -74,7 +74,7 @@ func checkColor(color string) error {
 		"darkslategrey",
 		"darkturquoise",
 		"darkviolet",
-		"deeppink	",
+		"deeppink",
 		"deepskyblue",
 		"dimgray",
 		"dimgrey",
