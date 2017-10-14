@@ -102,9 +102,13 @@ rule2 {
 		ex1 := `body {
 		font-family: 'Zil', serif;
 }`
-		_, err := Unmarshal([]byte(ex1))
+		css, err := Unmarshal([]byte(ex1))
 		if err != nil {
 			t.Fatal(err)
+		}
+
+		if css["body"]["font-family"] != "'Zil', serif" {
+			t.Fatalf("invalid rule 'font-family', got %q", css["body"]["font-family"])
 		}
 	})
 	t.Run("MergedRules", func(t *testing.T) {
