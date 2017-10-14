@@ -99,8 +99,6 @@ rule2 {
 		}
 	})
 	t.Run("PropertyWithSpace", func(t *testing.T) {
-		// XXX fix this
-		t.SkipNow()
 		ex1 := `body {
 		font-family: 'Zil', serif;
 }`

@@ -56,6 +56,21 @@ func (t *tokenizer) next() (tokenEntry, error) {
 	}
 	value := t.s.TokenText()
 	pos := t.s.Pos()
+	if newTokenType(value).String() == "STYLE_SEPARATOR" {
+		t.s.IsIdentRune = func(ch rune, i int) bool { // property value can contain spaces
+			if ch == -1 || ch == '\n' || ch == '\t' || ch == ':' || ch == ';' {
+				return false
+			}
+			return true
+		}
+	} else {
+		t.s.IsIdentRune = func(ch rune, i int) bool { // other tokens can't contain spaces
+			if ch == -1 || ch == '\n' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
+				return false
+			}
+			return true
+		}
+	}
 	return tokenEntry{
 		value: value,
 		pos:   pos,
@@ -93,12 +108,6 @@ func newTokenType(typ string) tokenType {
 func newTokenizer(r io.Reader) *tokenizer {
 	s := &scanner.Scanner{}
 	s.Init(r)
-	s.IsIdentRune = func(ch rune, i int) bool {
-		if ch == -1 || ch == '\n' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
-			return false
-		}
-		return true
-	}
 	return &tokenizer{
 		s: s,
 	}
@@ -141,13 +150,14 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		l.Remove(e)
 		switch token.typ() {
 		case tokenValue:
-			fmt.Printf("value: %q, prevToken: %v\n", token.value, prevToken)
+			//fmt.Printf("value: %q, prevToken: %v\n", token.value, prevToken)
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
 				rule = token.value
 			case tokenBlockStart, tokenStatementEnd:
 				style = token.value
 			case tokenStyleSeparator:
+
 				value = token.value
 			default:
 
