@@ -1,6 +1,6 @@
 # go-css
 
-[![Build Status](https://travis-ci.org/napsy/go-css.svg?branch=master)](https://travis-ci.org/napsy/go-css-parser)
+[![Build Status](https://travis-ci.org/napsy/go-css.svg?branch=master)](https://travis-ci.org/napsy/go-css)
 [![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-square)](https://github.com/vendor/package/blob/master/LICENSE.md)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/napsy/go-css)
 
