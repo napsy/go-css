@@ -168,7 +168,6 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 				value = token.value
 			case tokenValue:
 				rule = append(rule, token.value)
-				fmt.Printf("GOT ANOTHER VALUE\n")
 			default:
 				return css, fmt.Errorf("line %d: invalid syntax", token.pos.Line)
 			}
