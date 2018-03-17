@@ -186,9 +186,6 @@ func TestParseSelectorGroup(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for k, v := range css {
-		t.Logf("k: %v, v: %v\n", k, v)
-	}
 	if _, ok := css[".rule1"]; !ok {
 		t.Fatal("Missing '.rule1' rule")
 	}
