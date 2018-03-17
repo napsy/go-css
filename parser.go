@@ -180,7 +180,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			}
 			isBlock = true
 		case tokenStatementEnd:
-			fmt.Printf("prevToken: %v, style: %v, value: %v\n", prevToken, style, value)
+			//fmt.Printf("prevToken: %v, style: %v, value: %v\n", prevToken, style, value)
 			if prevToken != tokenValue || style == "" || value == "" {
 				return css, fmt.Errorf("line %d: expected style before semicolon", token.pos.Line)
 			}
