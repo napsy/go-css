@@ -146,6 +146,28 @@ rule1 {
 	})
 }
 
+func TestParseSelectors(t *testing.T) {
+	ex1 := `.rule {
+		style1: value1;
+		style2: value2;
+}
+#rule1 {
+	style3: value3;
+	style4: value4;
+}`
+
+	css, err := Unmarshal([]byte(ex1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := css[".rule"]; !ok {
+		t.Fatal("Missing '.rule' rule")
+	}
+	if _, ok := css["#rule1"]; !ok {
+		t.Fatal("Missing '.rule' rule")
+	}
+}
+
 func BenchmarkParser(b *testing.B) {
 
 	ex1 := ""

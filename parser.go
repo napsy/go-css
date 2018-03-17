@@ -18,6 +18,7 @@ const (
 	tokenBlockEnd
 	tokenRuleName
 	tokenValue
+	tokenSelector
 	tokenStyleSeparator
 	tokenStatementEnd
 )
@@ -65,7 +66,7 @@ func (t *tokenizer) next() (tokenEntry, error) {
 		}
 	} else {
 		t.s.IsIdentRune = func(ch rune, i int) bool { // other tokens can't contain spaces
-			if ch == -1 || ch == '\n' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
+			if ch == -1 || ch == '.' || ch == '#' || ch == '\n' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
 				return false
 			}
 			return true
@@ -87,6 +88,8 @@ func (t tokenType) String() string {
 		return "STYLE_SEPARATOR"
 	case tokenStatementEnd:
 		return "STATEMENT_END"
+	case tokenSelector:
+		return "SELECTOR"
 	}
 	return "VALUE"
 }
@@ -101,6 +104,8 @@ func newTokenType(typ string) tokenType {
 		return tokenStyleSeparator
 	case ";":
 		return tokenStatementEnd
+	case ".", "#":
+		return tokenSelector
 	}
 	return tokenValue
 }
@@ -131,9 +136,10 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 
 	var (
 		// Information about the current block that is parsed.
-		rule  string
-		style string
-		value string
+		rule     string
+		style    string
+		value    string
+		selector string
 
 		isBlock bool
 
@@ -150,19 +156,21 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		l.Remove(e)
 		switch token.typ() {
 		case tokenValue:
-			//fmt.Printf("value: %q, prevToken: %v\n", token.value, prevToken)
+			//fmt.Printf("typ: %v, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
 				rule = token.value
+			case tokenSelector:
+				rule = selector + token.value
 			case tokenBlockStart, tokenStatementEnd:
 				style = token.value
 			case tokenStyleSeparator:
-
 				value = token.value
 			default:
-
 				return css, fmt.Errorf("line %d: invalid syntax", token.pos.Line)
 			}
+		case tokenSelector:
+			selector = token.value
 		case tokenBlockStart:
 			if prevToken != tokenValue {
 				return css, fmt.Errorf("line %d: block is missing rule identifier", token.pos.Line)
