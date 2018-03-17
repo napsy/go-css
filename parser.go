@@ -136,7 +136,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 
 	var (
 		// Information about the current block that is parsed.
-		rule     string
+		rule     []string
 		style    string
 		value    string
 		selector string
@@ -156,16 +156,19 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		l.Remove(e)
 		switch token.typ() {
 		case tokenValue:
-			//fmt.Printf("typ: %v, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
+			fmt.Printf("typ: %v, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
-				rule = token.value
+				rule = append(rule, token.value)
 			case tokenSelector:
-				rule = selector + token.value
+				rule = append(rule, selector+token.value)
 			case tokenBlockStart, tokenStatementEnd:
 				style = token.value
 			case tokenStyleSeparator:
 				value = token.value
+			case tokenValue:
+				rule = append(rule, token.value)
+				fmt.Printf("GOT ANOTHER VALUE\n")
 			default:
 				return css, fmt.Errorf("line %d: invalid syntax", token.pos.Line)
 			}
@@ -177,6 +180,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			}
 			isBlock = true
 		case tokenStatementEnd:
+			fmt.Printf("prevToken: %v, style: %v, value: %v\n", prevToken, style, value)
 			if prevToken != tokenValue || style == "" || value == "" {
 				return css, fmt.Errorf("line %d: expected style before semicolon", token.pos.Line)
 			}
@@ -185,16 +189,19 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			if !isBlock {
 				return css, fmt.Errorf("line %d: rule block ends without a beginning", token.pos.Line)
 			}
-			oldRule, ok := css[Rule(rule)]
-			if ok {
-				// merge rules
-				for style, value := range oldRule {
-					if _, ok := styles[style]; !ok {
-						styles[style] = value
+			for i := range rule {
+				oldRule, ok := css[Rule(rule[i])]
+				if ok {
+					// merge rules
+					for style, value := range oldRule {
+						if _, ok := styles[style]; !ok {
+							styles[style] = value
+						}
 					}
 				}
+				css[Rule(rule[i])] = styles
+
 			}
-			css[Rule(rule)] = styles
 			styles = map[string]string{}
 			style, value = "", ""
 			isBlock = false
