@@ -156,7 +156,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		l.Remove(e)
 		switch token.typ() {
 		case tokenValue:
-			fmt.Printf("typ: %v, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
+			//fmt.Printf("typ: %v, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
 				rule = append(rule, token.value)
