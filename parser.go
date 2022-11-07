@@ -133,7 +133,6 @@ func buildList(r io.Reader) *list.List {
 
 // TODO: rules can be comma separated
 func parse(l *list.List) (map[Rule]map[string]string, error) {
-
 	var (
 		// Information about the current block that is parsed.
 		rule     []string
@@ -154,9 +153,9 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 	for e := l.Front(); e != nil; e = l.Front() {
 		token := e.Value.(tokenEntry)
 		l.Remove(e)
+		// fmt.Printf("typ: %s, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
 		switch token.typ() {
 		case tokenValue:
-			//fmt.Printf("typ: %v, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
 				rule = append(rule, token.value)
@@ -179,7 +178,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			}
 			isBlock = true
 		case tokenStatementEnd:
-			//fmt.Printf("prevToken: %v, style: %v, value: %v\n", prevToken, style, value)
+			// fmt.Printf("prevToken: %v, style: %v, value: %v\n", prevToken, style, value)
 			if prevToken != tokenValue || style == "" || value == "" {
 				return css, fmt.Errorf("line %d: expected style before semicolon", token.pos.Line)
 			}
@@ -188,8 +187,10 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			if !isBlock {
 				return css, fmt.Errorf("line %d: rule block ends without a beginning", token.pos.Line)
 			}
+
 			for i := range rule {
-				oldRule, ok := css[Rule(rule[i])]
+				r := Rule(rule[i])
+				oldRule, ok := css[r]
 				if ok {
 					// merge rules
 					for style, value := range oldRule {
@@ -197,16 +198,21 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 							styles[style] = value
 						}
 					}
+
+					continue
 				}
-				css[Rule(rule[i])] = styles
+
+				css[r] = styles
 
 			}
+
 			styles = map[string]string{}
 			style, value = "", ""
 			isBlock = false
 		}
 		prevToken = token.typ()
 	}
+
 	return css, nil
 }
 
