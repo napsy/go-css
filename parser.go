@@ -59,14 +59,14 @@ func (t *tokenizer) next() (tokenEntry, error) {
 	pos := t.s.Pos()
 	if newTokenType(value).String() == "STYLE_SEPARATOR" {
 		t.s.IsIdentRune = func(ch rune, i int) bool { // property value can contain spaces
-			if ch == -1 || ch == '\n' || ch == '\t' || ch == ':' || ch == ';' {
+			if ch == -1 || ch == '\n' || ch == '\r' || ch == '\t' || ch == ':' || ch == ';' {
 				return false
 			}
 			return true
 		}
 	} else {
 		t.s.IsIdentRune = func(ch rune, i int) bool { // other tokens can't contain spaces
-			if ch == -1 || ch == '.' || ch == '#' || ch == '\n' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
+			if ch == -1 || ch == '.' || ch == '#' || ch == '\n' || ch == '\r' || ch == ' ' || ch == '\t' || ch == ':' || ch == ';' {
 				return false
 			}
 			return true
