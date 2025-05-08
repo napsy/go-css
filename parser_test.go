@@ -78,7 +78,6 @@ rule {
 			t.Fatal("should error out")
 		}
 	})
-
 }
 
 func TestParseHarder(t *testing.T) {
@@ -149,7 +148,6 @@ rule1 {
 		if err != nil {
 			t.Fatal(err)
 		}
-
 	})
 }
 
@@ -195,11 +193,9 @@ func TestParseSelectorGroup(t *testing.T) {
 	if _, ok := css["rule3"]; !ok {
 		t.Fatal("Missing '.rule3' rule")
 	}
-
 }
 
 func BenchmarkParser(b *testing.B) {
-
 	ex1 := ""
 	for i := 0; i < 100; i++ {
 		ex1 += fmt.Sprintf(`block%d {
