@@ -78,7 +78,6 @@ rule {
 			t.Fatal("should error out")
 		}
 	})
-
 }
 
 func TestParseHarder(t *testing.T) {
@@ -103,6 +102,14 @@ rule2 {
 		}
 		if _, ok := css["rule2"]; !ok {
 			t.Fatal("missing rule 'rule2'")
+		}
+
+		if len(css["rule1"]) != 2 {
+			t.Fatalf("expected 2 styles for rule 'rule1', got %d", len(css["rule1"]))
+		}
+
+		if len(css["rule2"]) != 1 {
+			t.Fatalf("expected 1 style for rule 'rule2', got %d", len(css["rule2"]))
 		}
 	})
 	t.Run("PropertyWithSpace", func(t *testing.T) {
@@ -149,7 +156,6 @@ rule1 {
 		if err != nil {
 			t.Fatal(err)
 		}
-
 	})
 }
 
@@ -195,11 +201,9 @@ func TestParseSelectorGroup(t *testing.T) {
 	if _, ok := css["rule3"]; !ok {
 		t.Fatal("Missing '.rule3' rule")
 	}
-
 }
 
 func BenchmarkParser(b *testing.B) {
-
 	ex1 := ""
 	for i := 0; i < 100; i++ {
 		ex1 += fmt.Sprintf(`block%d {

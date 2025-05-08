@@ -198,8 +198,6 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 							styles[style] = value
 						}
 					}
-
-					continue
 				}
 
 				css[r] = styles
@@ -209,6 +207,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			styles = map[string]string{}
 			style, value = "", ""
 			isBlock = false
+			rule = make([]string, 0)
 		}
 		prevToken = token.typ()
 	}
