@@ -1,0 +1,42 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - 'v*'
+  pull_request:
+
+jobs:
+  Building:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # https://github.com/actions/virtual-environments#available-environments
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout out source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: 'true'
+      - name: Set up Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+        id: go
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: make build
+        run: |
+          go test -v
