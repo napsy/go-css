@@ -13,6 +13,31 @@ func TestParseSimple(t *testing.T) {
 		style2: value2;
 }`
 
+	ex2 := `rule1 {
+		style1: value1;
+		style2: value2;
+}
+rule2 {
+	style3: value3;
+}`
+
+	ex3 := `body {
+		font-family: 'Zil', serif;
+}`
+
+	ex4 := `rule1 {
+		style1: value1;
+		style2: value2;
+}
+rule1 {
+	style1: value3;
+}`
+
+	ex5 := `body {
+    background-image: url("gradient_bg.png");
+    background-repeat: repeat-x;
+}`
+
 	cases := []struct {
 		name     string
 		CSS      string
@@ -22,6 +47,32 @@ func TestParseSimple(t *testing.T) {
 			"rule": {
 				"style1": "value1",
 				"style2": "value2",
+			},
+		}},
+		{"Multiple rules", ex2, map[Rule]map[string]string{
+			"rule1": {
+				"style1": "value1",
+				"style2": "value2",
+			},
+			"rule2": {
+				"style3": "value3",
+			},
+		}},
+		{"Property with spaces", ex3, map[Rule]map[string]string{
+			"body": {
+				"font-family": "'Zil', serif",
+			},
+		}},
+		{"Merged rules", ex4, map[Rule]map[string]string{
+			"rule1": {
+				"style1": "value3",
+				"style2": "value2",
+			},
+		}},
+		{"Real world css", ex5, map[Rule]map[string]string{
+			"body": {
+				"background-image":  "url(\"gradient_bg.png\")",
+				"background-repeat": "repeat-x",
 			},
 		}},
 	}
@@ -78,85 +129,6 @@ rule {
 			}
 		})
 	}
-}
-
-func TestParseHarder(t *testing.T) {
-	t.Run("MultiRules", func(t *testing.T) {
-		ex1 := `rule1 {
-		style1: value1;
-		style2: value2;
-}
-rule2 {
-	style3: value3;
-}`
-		css, err := Unmarshal([]byte(ex1))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(css) != 2 {
-			t.Fatalf("expected 2 rules, got %d", len(css))
-		}
-
-		if _, ok := css["rule1"]; !ok {
-			t.Fatal("missing rule 'rule1'")
-		}
-		if _, ok := css["rule2"]; !ok {
-			t.Fatal("missing rule 'rule2'")
-		}
-
-		if len(css["rule1"]) != 2 {
-			t.Fatalf("expected 2 styles for rule 'rule1', got %d", len(css["rule1"]))
-		}
-
-		if len(css["rule2"]) != 1 {
-			t.Fatalf("expected 1 style for rule 'rule2', got %d", len(css["rule2"]))
-		}
-	})
-	t.Run("PropertyWithSpace", func(t *testing.T) {
-		ex1 := `body {
-		font-family: 'Zil', serif;
-}`
-		css, err := Unmarshal([]byte(ex1))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if css["body"]["font-family"] != "'Zil', serif" {
-			t.Fatalf("invalid rule 'font-family', got %q", css["body"]["font-family"])
-		}
-	})
-	t.Run("MergedRules", func(t *testing.T) {
-		ex1 := `rule1 {
-		style1: value1;
-		style2: value2;
-}
-rule1 {
-	style1: value3;
-}`
-		css, err := Unmarshal([]byte(ex1))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(css) != 1 {
-			t.Fatalf("there should be only one rule, got %d", len(css))
-		}
-		if len(css["rule1"]) != 2 {
-			t.Fatalf("there should be two styles for rule 'rule1', got %d", len(css["rule1"]))
-		}
-		if css["rule1"]["style1"] != "value3" {
-			t.Fatalf("value of 'style1' should be 'value3' but got '%v'", css["rule1"]["style1"])
-		}
-	})
-	t.Run("RealWorldCSS", func(t *testing.T) {
-		ex1 := `body {
-    background-image: url("gradient_bg.png");
-    background-repeat: repeat-x;
-}`
-		_, err := Unmarshal([]byte(ex1))
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
 }
 
 func TestParseSelectors(t *testing.T) {
