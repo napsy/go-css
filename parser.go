@@ -57,7 +57,7 @@ func (t *tokenizer) next() (tokenEntry, error) {
 	}
 	value := t.s.TokenText()
 	pos := t.s.Pos()
-	if newTokenType(value).String() == "STYLE_SEPARATOR" {
+	if newTokenType(value) == tokenStyleSeparator {
 		t.s.IsIdentRune = func(ch rune, i int) bool { // property value can contain spaces
 			if ch == -1 || ch == '\n' || ch == '\r' || ch == '\t' || ch == ':' || ch == ';' {
 				return false
@@ -76,22 +76,6 @@ func (t *tokenizer) next() (tokenEntry, error) {
 		value: value,
 		pos:   pos,
 	}, nil
-}
-
-func (t tokenType) String() string {
-	switch t {
-	case tokenBlockStart:
-		return "BLOCK_START"
-	case tokenBlockEnd:
-		return "BLOCK_END"
-	case tokenStyleSeparator:
-		return "STYLE_SEPARATOR"
-	case tokenStatementEnd:
-		return "STATEMENT_END"
-	case tokenSelector:
-		return "SELECTOR"
-	}
-	return "VALUE"
 }
 
 func newTokenType(typ string) tokenType {
