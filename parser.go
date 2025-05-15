@@ -25,31 +25,44 @@ const (
 	tokenStatementEnd
 )
 
-// Rule is a string type that represents a CSS rule.
-type Rule string
-
 type tokenEntry struct {
 	value string
 	pos   scanner.Position
+}
+
+func newTokenType(typ string) tokenType {
+	types := map[string]tokenType{
+		"{": tokenBlockStart,
+		"}": tokenBlockEnd,
+		":": tokenStyleSeparator,
+		";": tokenStatementEnd,
+		".": tokenSelector,
+		"#": tokenSelector,
+	}
+
+	result, ok := types[typ]
+	if ok {
+		return result
+	}
+
+	return tokenValue
+}
+
+func (e tokenEntry) typ() tokenType {
+	return newTokenType(e.value)
 }
 
 type tokenizer struct {
 	s *scanner.Scanner
 }
 
-// Type returns the rule type, which can be a class, id or a tag.
-func (rule Rule) Type() string {
-	if strings.HasPrefix(string(rule), ".") {
-		return "class"
-	}
-	if strings.HasPrefix(string(rule), "#") {
-		return "id"
-	}
-	return "tag"
-}
+func newTokenizer(r io.Reader) *tokenizer {
+	s := &scanner.Scanner{}
+	s.Init(r)
 
-func (e tokenEntry) typ() tokenType {
-	return newTokenType(e.value)
+	return &tokenizer{
+		s: s,
+	}
 }
 
 func (t *tokenizer) next() (tokenEntry, error) {
@@ -80,28 +93,18 @@ func (t *tokenizer) next() (tokenEntry, error) {
 	}, nil
 }
 
-func newTokenType(typ string) tokenType {
-	switch typ {
-	case "{":
-		return tokenBlockStart
-	case "}":
-		return tokenBlockEnd
-	case ":":
-		return tokenStyleSeparator
-	case ";":
-		return tokenStatementEnd
-	case ".", "#":
-		return tokenSelector
-	}
-	return tokenValue
-}
+// Rule is a string type that represents a CSS rule.
+type Rule string
 
-func newTokenizer(r io.Reader) *tokenizer {
-	s := &scanner.Scanner{}
-	s.Init(r)
-	return &tokenizer{
-		s: s,
+// Type returns the rule type, which can be a class, id or a tag.
+func (rule Rule) Type() string {
+	if strings.HasPrefix(string(rule), ".") {
+		return "class"
 	}
+	if strings.HasPrefix(string(rule), "#") {
+		return "id"
+	}
+	return "tag"
 }
 
 func buildList(r io.Reader) *list.List {
