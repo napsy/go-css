@@ -10,6 +10,8 @@ import (
 	"text/scanner"
 )
 
+//go:generate stringer -type=tokenType
+
 type tokenType int
 
 const (
