@@ -3,6 +3,8 @@ package css
 import (
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseSimple(t *testing.T) {
@@ -10,74 +12,72 @@ func TestParseSimple(t *testing.T) {
 		style1: value1;
 		style2: value2;
 }`
-	ex2 := `{
+
+	cases := []struct {
+		name     string
+		CSS      string
+		expected map[Rule]map[string]string
+	}{
+		{"Single rule (simple)", ex1, map[Rule]map[string]string{
+			"rule": {
+				"style1": "value1",
+				"style2": "value2",
+			},
+		}},
+	}
+
+	for _, tt := range cases {
+		t.Run("GoodCSS", func(t *testing.T) {
+			css, err := Unmarshal([]byte(tt.CSS))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assert.Equal(t, tt.expected, css, "Expected CSS to be equal")
+		})
+	}
+}
+
+func TestParseError(t *testing.T) {
+	ex1 := `{
 		style1: value1;
 }`
-	/*
-	   	ex3 := `rule {
-	   		style1: value1
-	   		style2: value2;
-	   }`
-	*/
-	ex4 := `rule {
+
+	ex2 := `rule {
 		style1: value1;
 		style2:;
 }`
-	ex5 := `}
+
+	ex3 := `rule {
+	   		style1: value1
+	   		style2: value2;
+}`
+
+	ex4 := `}
 rule {
 		style1: value1;
 		style2:;
 }`
+	_ = ex3
 
-	t.Run("GoodCSS", func(t *testing.T) {
-		css, err := Unmarshal([]byte(ex1))
-		if err != nil {
-			t.Fatal(err)
-		}
-		rule, ok := css["rule"]
-		if !ok {
-			t.Fatal("rule 'rule' doesn't exist")
-		}
+	cases := []struct {
+		name string
+		CSS  string
+	}{
+		{"Missing rule", ex1},
+		{"Missing style", ex2},
+		// TODO: this hsould not crash
+		//{"Statement Missing Semicolon", ex3},
+		{"BlockEndsWithoutBeginning", ex4},
+	}
 
-		if value, ok := rule["style1"]; !ok {
-			t.Fatal("syle 'style1' doesn't exist")
-		} else if value != "value1" {
-			t.Fatalf("incorrect value for 'style1', got '%v', expected 'value1'", value)
-		}
-
-		if value, ok := rule["style2"]; !ok {
-			t.Fatal("style 'style2' doesn't exist")
-		} else if value != "value2" {
-			t.Fatalf("incorrect value for 'style2', got '%v', expected 'value2'", value)
-		}
-	})
-
-	t.Run("MissingRule", func(t *testing.T) {
-		if _, err := Unmarshal([]byte(ex2)); err == nil {
-			t.Fatal("should error out")
-		}
-	})
-
-	/*
-		t.Run("StatementMissingSemicolon", func(t *testing.T) {
-			if css, err := Unmarshal([]byte(ex3)); err == nil {
-				for k, v := range css {
-					t.Logf("k: %v, v: %v\n", k, v)
-				}
-				t.Fatal("should error out")
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			if _, err := Unmarshal([]byte(tt.CSS)); err == nil {
+				t.Fatal("Should return error!")
 			}
 		})
-	*/
-	t.Run("StyleWithoutValue", func(t *testing.T) {
-		if _, err := Unmarshal([]byte(ex4)); err == nil {
-			t.Fatal("should error out")
-		}
-	})
-	t.Run("BlockEndsWithoutBeginning", func(t *testing.T) {
-		if _, err := Unmarshal([]byte(ex5)); err == nil {
-			t.Fatal("should error out")
-		}
-	})
+	}
 }
 
 func TestParseHarder(t *testing.T) {
