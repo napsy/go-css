@@ -78,7 +78,7 @@ rule1 {
 	}
 
 	for _, tt := range cases {
-		t.Run("GoodCSS", func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			css, err := Unmarshal([]byte(tt.CSS))
 			if err != nil {
 				t.Fatal(err)
