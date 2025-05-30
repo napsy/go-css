@@ -10,6 +10,8 @@ import (
 	"text/scanner"
 )
 
+var InvalidCSSError = errors.New("invalid CSS")
+
 //go:generate stringer -type=tokenType
 
 type tokenType int
@@ -130,6 +132,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		selector string
 
 		isBlock bool
+		isValue bool
 
 		// Parsed styles.
 		css    = make(map[Rule]map[string]string)
@@ -150,31 +153,45 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 				rule = append(rule, token.value)
 			case tokenSelector:
 				rule = append(rule, selector+token.value)
-			case tokenBlockStart, tokenStatementEnd:
+			case tokenBlockStart, tokenStatementEnd: // { or ;
 				style = token.value
 			case tokenStyleSeparator:
+				if isValue { // multiple separators without ;
+					return css, fmt.Errorf("line %d: multiple style names before value: %w", token.pos.Line, InvalidCSSError)
+				}
+
+				isValue = true
 				value = token.value
 			case tokenValue:
-				rule = append(rule, token.value)
+				if !isBlock { // descendant selector
+					rule = append(rule, token.value)
+				} else { // technically, this could mean we put multiple style values.
+					if !isValue { // want to parse multiple style names? denied.
+						return css, fmt.Errorf("line %d: expected only one name before value: %w", token.pos.Line, InvalidCSSError)
+					}
+
+					value += " " + token.value
+				}
 			default:
-				return css, fmt.Errorf("line %d: invalid syntax", token.pos.Line)
+				return css, fmt.Errorf("line %d: invalid syntax: %w", token.pos.Line, InvalidCSSError)
 			}
 		case tokenSelector:
 			selector = token.value
 		case tokenBlockStart:
 			if prevToken != tokenValue {
-				return css, fmt.Errorf("line %d: block is missing rule identifier", token.pos.Line)
+				return css, fmt.Errorf("line %d: block is missing rule identifier: %w", token.pos.Line, InvalidCSSError)
 			}
 			isBlock = true
+			isValue = false
 		case tokenStatementEnd:
-			// fmt.Printf("prevToken: %v, style: %v, value: %v\n", prevToken, style, value)
 			if prevToken != tokenValue || style == "" || value == "" {
-				return css, fmt.Errorf("line %d: expected style before semicolon", token.pos.Line)
+				return css, fmt.Errorf("line %d: expected style before semicolon: %w", token.pos.Line, InvalidCSSError)
 			}
 			styles[style] = value
+			isValue = false
 		case tokenBlockEnd:
 			if !isBlock {
-				return css, fmt.Errorf("line %d: rule block ends without a beginning", token.pos.Line)
+				return css, fmt.Errorf("line %d: rule block ends without a beginning: %w", token.pos.Line, InvalidCSSError)
 			}
 
 			for i := range rule {
