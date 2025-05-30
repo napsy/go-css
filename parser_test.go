@@ -38,6 +38,15 @@ rule1 {
     background-repeat: repeat-x;
 }`
 
+	ex6 := `rule1 descendant {
+	style1:value1;
+}`
+
+	ex7 := `rule1 {
+	/* this is a comment */
+	style: value;
+}`
+
 	cases := []struct {
 		name     string
 		CSS      string
@@ -75,6 +84,16 @@ rule1 {
 				"background-repeat": "repeat-x",
 			},
 		}},
+		{"Descendant selector", ex6, map[Rule]map[string]string{
+			"rule1 descendant": {
+				"style1": "value1",
+			},
+		}},
+		{"Comment in rule", ex7, map[Rule]map[string]string{
+			"rule1": {
+				"style": "value",
+			},
+		}},
 	}
 
 	for _, tt := range cases {
@@ -109,7 +128,12 @@ rule {
 		style1: value1;
 		style2:;
 }`
-	_ = ex3
+
+	ex5 := `
+body {
+	style1:value1;
+	*/
+}`
 
 	cases := []struct {
 		name string
@@ -117,9 +141,9 @@ rule {
 	}{
 		{"Missing rule", ex1},
 		{"Missing style", ex2},
-		// TODO: this hsould not crash
-		//{"Statement Missing Semicolon", ex3},
+		{"Statement Missing Semicolon", ex3},
 		{"BlockEndsWithoutBeginning", ex4},
+		{"Unexpected end of comment", ex5},
 	}
 
 	for _, tt := range cases {
@@ -128,28 +152,6 @@ rule {
 				t.Fatal("Should return error!")
 			}
 		})
-	}
-}
-
-func TestParseSelectors(t *testing.T) {
-	ex1 := `.rule {
-		style1: value1;
-		style2: value2;
-}
-#rule1 sad asd {
-	style3: value3;
-	style4: value4;
-}`
-
-	css, err := Unmarshal([]byte(ex1))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, ok := css[".rule"]; !ok {
-		t.Fatal("Missing '.rule' rule")
-	}
-	if _, ok := css["#rule1"]; !ok {
-		t.Fatal("Missing '.rule' rule")
 	}
 }
 

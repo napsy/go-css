@@ -16,11 +16,13 @@ func _() {
 	_ = x[tokenSelector-4]
 	_ = x[tokenStyleSeparator-5]
 	_ = x[tokenStatementEnd-6]
+	_ = x[tokenCommentStart-7]
+	_ = x[tokenCommentEnd-8]
 }
 
-const _tokenType_name = "tokenFirstTokentokenBlockStarttokenBlockEndtokenRuleNametokenValuetokenSelectortokenStyleSeparatortokenStatementEnd"
+const _tokenType_name = "tokenFirstTokentokenBlockStarttokenBlockEndtokenRuleNametokenValuetokenSelectortokenStyleSeparatortokenStatementEndtokenCommentStarttokenCommentEnd"
 
-var _tokenType_index = [...]uint8{0, 15, 30, 43, 56, 66, 79, 98, 115}
+var _tokenType_index = [...]uint8{0, 15, 30, 43, 56, 66, 79, 98, 115, 132, 147}
 
 func (i tokenType) String() string {
 	i -= -1
