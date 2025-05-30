@@ -164,7 +164,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 				value = token.value
 			case tokenValue:
 				if !isBlock { // descendant selector
-					rule = append(rule, token.value)
+					rule[len(rule)-1] += " " + token.value
 				} else { // technically, this could mean we put multiple style values.
 					if !isValue { // want to parse multiple style names? denied.
 						return css, fmt.Errorf("line %d: expected only one name before value: %w", token.pos.Line, InvalidCSSError)

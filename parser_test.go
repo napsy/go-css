@@ -38,6 +38,10 @@ rule1 {
     background-repeat: repeat-x;
 }`
 
+	ex6 := `rule1 descendant {
+	style1:value1;
+}`
+
 	cases := []struct {
 		name     string
 		CSS      string
@@ -73,6 +77,11 @@ rule1 {
 			"body": {
 				"background-image":  "url(\"gradient_bg.png\")",
 				"background-repeat": "repeat-x",
+			},
+		}},
+		{"Descendant selector", ex6, map[Rule]map[string]string{
+			"rule1 descendant": {
+				"style1": "value1",
 			},
 		}},
 	}
@@ -117,8 +126,7 @@ rule {
 	}{
 		{"Missing rule", ex1},
 		{"Missing style", ex2},
-		// TODO: this hsould not crash
-		//{"Statement Missing Semicolon", ex3},
+		{"Statement Missing Semicolon", ex3},
 		{"BlockEndsWithoutBeginning", ex4},
 	}
 
