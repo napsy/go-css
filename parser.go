@@ -25,6 +25,8 @@ const (
 	tokenSelector
 	tokenStyleSeparator
 	tokenStatementEnd
+	tokenCommentStart
+	tokenCommentEnd
 )
 
 type tokenEntry struct {
@@ -34,12 +36,14 @@ type tokenEntry struct {
 
 func newTokenType(typ string) tokenType {
 	types := map[string]tokenType{
-		"{": tokenBlockStart,
-		"}": tokenBlockEnd,
-		":": tokenStyleSeparator,
-		";": tokenStatementEnd,
-		".": tokenSelector,
-		"#": tokenSelector,
+		"{":  tokenBlockStart,
+		"}":  tokenBlockEnd,
+		":":  tokenStyleSeparator,
+		";":  tokenStatementEnd,
+		".":  tokenSelector,
+		"#":  tokenSelector,
+		"/*": tokenCommentStart,
+		"*/": tokenCommentEnd,
 	}
 
 	result, ok := types[typ]
@@ -131,8 +135,9 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		value    string
 		selector string
 
-		isBlock bool
-		isValue bool
+		isBlock   bool
+		isValue   bool
+		isComment bool
 
 		// Parsed styles.
 		css    = make(map[Rule]map[string]string)
@@ -145,7 +150,26 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 	for e := l.Front(); e != nil; e = l.Front() {
 		token := e.Value.(tokenEntry)
 		l.Remove(e)
-		// fmt.Printf("typ: %s, value: %q, prevToken: %v\n", token.typ(), token.value, prevToken)
+
+		// handle comment - we continue after this because we don't want to override prevToken
+		switch token.typ() {
+		case tokenCommentStart:
+			isComment = true
+			continue
+		case tokenCommentEnd:
+			// handle standalone endComment token
+			if !isComment {
+				return css, fmt.Errorf("line %d: unexpected end of comment: %w", token.pos.Line, InvalidCSSError)
+			}
+
+			isComment = false
+			continue
+		}
+
+		if isComment { // skip everything regardless what it is if processing in comment mode
+			continue
+		}
+
 		switch token.typ() {
 		case tokenValue:
 			switch prevToken {
