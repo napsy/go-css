@@ -130,7 +130,7 @@ func buildList(r io.Reader) *list.List {
 func parse(l *list.List) (map[Rule]map[string]string, error) {
 	var (
 		// Information about the current block that is parsed.
-		rule     []string
+		rule     = make([]string, 1)
 		style    string
 		value    string
 		selector string
@@ -174,9 +174,14 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 		case tokenValue:
 			switch prevToken {
 			case tokenFirstToken, tokenBlockEnd:
-				rule = append(rule, token.value)
+				rule[len(rule)-1] += token.value
 			case tokenSelector:
-				rule = append(rule, selector+token.value)
+				// if not empty - we already added a part of a rule and this is a descendant selector for that rule
+				if rule[len(rule)-1] != "" {
+					rule[len(rule)-1] += " "
+				}
+
+				rule[len(rule)-1] += selector + token.value
 			case tokenBlockStart, tokenStatementEnd: // { or ;
 				style = token.value
 			case tokenStyleSeparator:
@@ -237,7 +242,7 @@ func parse(l *list.List) (map[Rule]map[string]string, error) {
 			styles = map[string]string{}
 			style, value = "", ""
 			isBlock = false
-			rule = make([]string, 0)
+			rule = make([]string, 1)
 		}
 		prevToken = token.typ()
 	}

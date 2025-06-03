@@ -164,31 +164,6 @@ body {
 	}
 }
 
-func TestParseSelectorGroup(t *testing.T) {
-	ex1 := `.rule1 #rule2 rule3 {
-		style1: value1;
-		style2: value2;
-}`
-
-	css, err := Unmarshal([]byte(ex1))
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(css)
-
-	if _, ok := css[".rule1"]; !ok {
-		t.Fatal("Missing '.rule1' rule")
-	}
-	if _, ok := css["#rule2"]; !ok {
-		t.Fatal("Missing '#rule2' rule")
-	}
-	/*
-		if _, ok := css["rule3"]; !ok {
-			t.Fatal("Missing '.rule3' rule")
-		}
-	*/
-}
-
 func BenchmarkParser(b *testing.B) {
 	ex1 := ""
 	for i := 0; i < 100; i++ {
